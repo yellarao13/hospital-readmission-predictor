@@ -10,31 +10,20 @@ Patient Data → Data Preprocessing → Machine Learning Model → Readmission R
 
 | Component | Choice |
 |---|---|
-| Dataset | Team-created synthetic CSV |
+| Dataset | Data CSV |
 | Data preparation | Pandas |
 | Main ML model | Logistic Regression |
 | Comparison model | Random Forest |
-| Evaluation | Precision, recall, F1-score, ROC-AUC and confusion matrix |
 | Backend | FastAPI |
 | Database | SQLite |
 | Frontend | Streamlit |
 | Collaboration | GitHub |
 
-## Team Roles
-
-| Person | Role | Responsibility |
-|---|---|---|
-| 1 | Data Person | Understand and clean the dataset, make graphs, prepare ML-ready data |
-| 2 | ML Person | Train and compare models, evaluate and choose the final model, save the model |
-| 3 | Backend Person | Build the API, connect the model, create the database and store predictions |
-| 4 | Frontend Person | Build the patient form, result page and dashboard |
-| 5 | Testing + Integration Person | Create the workflow, test everything, connect modules, final quality check |
-
 ## Repository Structure
 
 ```
 hospital-readmission-predictor/
-├── ml_dataset.csv          # Patient dataset (1,000 rows)
+├── ml_dataset.csv          # Patient dataset 
 ├── hospital_graphs.py      # Data exploration graphs
 ├── train_model.py          # ML training, evaluation and model saving
 ├── models/
@@ -44,8 +33,6 @@ hospital-readmission-predictor/
 ├── .gitignore
 └── README.md
 ```
-
-Backend and frontend files will be added by their owners.
 
 ## Getting Started
 
@@ -66,7 +53,7 @@ pip install -r requirements.txt
 This module trains a model that predicts whether a patient will be readmitted within 30 days of discharge. It outputs a risk probability, and the backend uses it to flag high-risk patients.
 
 ### Dataset
-- File: `ml_dataset.csv` (1,000 patients, 13 columns, no missing values)
+- File: `ml_dataset.csv` 
 - Target: `readmitted_30_days` (1 = readmitted, 0 = not readmitted). About 42% of patients are readmitted.
 - Features: age, gender, admission_type, diagnosis, time_in_hospital, previous_admissions, num_lab_procedures, num_medications, diabetes, medication_change, discharge_disposition
 - `patient_id` is dropped before training because it is not a feature.
@@ -76,7 +63,6 @@ This module trains a model that predicts whether a patient will be readmitted wi
 2. Preprocess inside a scikit-learn Pipeline: one-hot encode the categorical columns and scale the numeric columns for Logistic Regression.
 3. Train two models and compare them:
    - **Logistic Regression** (final model)
-   - **Random Forest** (comparison)
 4. Evaluate with accuracy, precision, recall, F1, ROC-AUC, the confusion matrix and 5-fold cross-validation.
 5. Tune the decision threshold on the training data only, so that recall stays at 70% or more while keeping the best F1.
 6. Refit the final model on all the data and save it.
@@ -128,8 +114,3 @@ high_risk = risk >= bundle["threshold"]
 print(f"Readmission risk: {risk:.0%} | High risk: {high_risk}")
 ```
 Use the same scikit-learn version as in `requirements.txt`, otherwise loading the model may fail.
-
----
-
-## Disclaimer
-This is an academic project built on synthetic data. It is a decision-support demo and must not be used for real clinical decisions.
