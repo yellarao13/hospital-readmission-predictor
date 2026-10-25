@@ -54,7 +54,7 @@ This module trains a model that predicts whether a patient will be readmitted wi
 
 ### Dataset
 - File: `ml_dataset.csv` 
-- Target: `readmitted_30_days` (1 = readmitted, 0 = not readmitted). About 42% of patients are readmitted.
+- Target: `readmitted_30_days` (1 = readmitted, 0 = not readmitted). 
 - Features: age, gender, admission_type, diagnosis, time_in_hospital, previous_admissions, num_lab_procedures, num_medications, diabetes, medication_change, discharge_disposition
 - `patient_id` is dropped before training because it is not a feature.
 
