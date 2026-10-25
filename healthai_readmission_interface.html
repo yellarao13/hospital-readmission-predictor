@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthAI | Hospital Readmission Predictor</title>
+<style>
+  :root{--navy:#142b4b;--navy2:#1b3556;--blue:#2474d2;--blue2:#1764bc;--pale:#eaf4ff;--ink:#10264a;--muted:#63758f;--line:#d8e1eb;--white:#fff}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--ink);background:#eaf4fb}
+  button,input,select{font:inherit}
+  .app{min-height:100vh;display:flex}
+  .sidebar{width:286px;flex:0 0 286px;background:linear-gradient(160deg,#142943,#1d3554 70%,#132841);color:#eaf3ff;padding:27px 15px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+  .brand{display:flex;align-items:center;gap:12px;padding:4px 14px 39px}
+  .brand-mark{width:61px;height:54px;border-radius:17px 17px 24px 17px;background:#2383e5;display:grid;place-items:center;box-shadow:0 4px 18px #0b1b3266}
+  .brand-mark svg{width:45px;height:38px}
+  .brand-name{font-weight:800;font-size:25px;letter-spacing:-.5px}
+  .brand-sub{font-size:14px;color:#b8cbe1;margin-top:3px}
+  .nav{display:grid;gap:8px}
+  .nav-item{display:flex;align-items:center;gap:17px;height:68px;border-radius:11px;padding:0 22px;color:#e0eaf7;text-decoration:none;font-size:17px;cursor:pointer;border:0;background:transparent;text-align:left}
+  .nav-item svg{width:27px;height:27px;flex-shrink:0;stroke:currentColor}
+  .nav-item.active{background:linear-gradient(100deg,#2677c9,#2362a6);box-shadow:0 5px 15px #06172c3b;color:white}
+  .nav-item:hover:not(.active){background:#ffffff12}
+  .side-art{margin-top:auto;padding:32px 8px 0;opacity:.7}
+  .side-art svg{width:100%;max-width:225px;height:205px}
+  .side-caption{font-size:12px;color:#a8bfd9;line-height:1.6;max-width:190px}
+  .main{flex:1;min-width:0;padding:30px clamp(18px,3vw,42px) 34px;background:linear-gradient(130deg,#f0f8ff,#e3f1fb)}
+  .hero{position:relative;min-height:118px;padding:0 10px 20px;overflow:hidden}
+  .hero h1{font-size:clamp(28px,3vw,43px);line-height:1.1;letter-spacing:-1.2px;margin:3px 0 13px;font-weight:800;color:#10264b;position:relative;z-index:1}
+  .hero p{font-size:17px;color:#354b6b;margin:0;position:relative;z-index:1}
+  .hospital-art{position:absolute;right:-5px;top:-14px;width:340px;height:142px;object-fit:cover;object-position:center;opacity:.42;mask-image:linear-gradient(to right,transparent,black 28%)}
+  .form-card{background:#ffffffed;border:1px solid #e1eaf2;border-radius:21px;box-shadow:0 14px 38px #284d6a12;overflow:hidden}
+  .card-head{display:flex;align-items:center;gap:19px;padding:25px 29px 17px;border-bottom:1px solid #e3eaf2}
+  .head-icon{width:58px;height:58px;border-radius:13px;background:linear-gradient(140deg,#3488f4,#1d64c7);display:grid;place-items:center;flex-shrink:0}
+  .head-icon svg{width:31px;height:31px;stroke:white}
+  .card-head h2{font-size:25px;margin:0 0 5px;letter-spacing:-.4px}
+  .card-head p{font-size:16px;margin:0;color:#65758d}
+  .form-body{padding:22px 29px 29px}
+  .fields{display:grid;grid-template-columns:1fr 1fr;column-gap:26px}
+  .field-column:first-child{padding-right:25px;border-right:1px solid #dfe7ef}
+  .field{display:grid;grid-template-columns:58px minmax(0,1fr);gap:15px;align-items:center;margin-bottom:25px}
+  .field-icon{width:58px;height:58px;border-radius:17px;background:#edf6ff;display:grid;place-items:center;color:#163b78}
+  .field-icon svg{width:29px;height:29px;stroke:currentColor;fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+  .field label{display:block;font-size:16px;font-weight:750;margin-bottom:8px;color:#172b4c}
+  .required{color:#e33e52}
+  .field input,.field select{width:100%;height:49px;border:2px solid #d9e1e9;border-radius:10px;padding:0 14px;background:#fff;color:#243956;outline:none;box-shadow:inset 0 1px 2px #1b345b08;min-width:0}
+  .field input::placeholder{color:#91a0b5}
+  .field input:focus,.field select:focus{border-color:#4a91e7;box-shadow:0 0 0 3px #2f80df1a}
+  .predict{height:76px;width:100%;border:0;border-radius:12px;background:linear-gradient(100deg,#2877d5,#0863bd);color:white;font-size:21px;font-weight:750;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:13px;box-shadow:0 6px 14px #1c70c62b;transition:transform .15s,filter .15s}
+  .predict:hover{filter:brightness(1.06);transform:translateY(-1px)}
+  .predict svg{width:27px;height:27px;stroke:currentColor;fill:none;stroke-width:2}
+  .result{display:none;margin-top:18px;padding:18px 20px;border:1px solid #b9d9f8;border-radius:12px;background:#f0f8ff;line-height:1.55}
+  .result.show{display:block}
+  .result strong{font-size:18px}
+  .result small{display:block;color:#5b6f89;margin-top:5px}
+  .notice{font-size:12px;color:#7a8ca3;text-align:center;margin:13px 0 0}
+  @media(max-width:1050px){.sidebar{width:230px;flex-basis:230px}.brand{padding-left:5px}.brand-name{font-size:22px}.nav-item{padding:0 14px}.fields{column-gap:18px}.field-column:first-child{padding-right:18px}.field{grid-template-columns:46px minmax(0,1fr);gap:11px}.field-icon{width:46px;height:46px}.field label{font-size:14px}.field input,.field select{height:46px}}
+  @media(max-width:760px){.app{display:block}.sidebar{width:100%;padding:12px 14px;display:block}.brand{padding:0 5px 12px}.brand-mark{width:45px;height:42px}.brand-mark svg{width:34px}.brand-name{font-size:21px}.brand-sub{font-size:12px}.nav{display:flex;overflow-x:auto;gap:6px}.nav-item{height:44px;white-space:nowrap;padding:0 12px;gap:8px;font-size:13px}.nav-item svg{width:19px;height:19px}.side-art{display:none}.main{padding:22px 14px}.hero{min-height:115px;padding:0 4px 18px}.hero h1{font-size:29px}.hero p{font-size:14px;max-width:95%}.hospital-art{width:200px;opacity:.18}.card-head{padding:18px}.head-icon{width:48px;height:48px}.card-head h2{font-size:21px}.card-head p{font-size:13px}.form-body{padding:18px}.fields{grid-template-columns:1fr}.field-column:first-child{padding-right:0;border-right:0}.field{margin-bottom:19px;grid-template-columns:43px minmax(0,1fr);gap:12px}.field-icon{width:43px;height:43px;border-radius:12px}.field-icon svg{width:24px;height:24px}.predict{height:60px;font-size:17px}}
+  @media(min-width:761px) and (max-width:900px){.fields{grid-template-columns:1fr}.field-column:first-child{padding-right:0;border-right:0}.field{margin-bottom:20px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark"><svg viewBox="0 0 48 40" fill="none" aria-hidden="true"><path d="M3 20h9l5-12 8 24 7-17 4 5h9" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 38C14 30 2 23 2 13 2 3 15 0 24 10 33 0 46 3 46 13c0 10-12 17-22 25Z" stroke="#bfe3ff" stroke-width="1.3"/></svg></div>
+      <div><div class="brand-name">HealthAI</div><div class="brand-sub">Hospital Analytics</div></div>
+    </div>
+    <nav class="nav" aria-label="Main navigation">
+      <button class="nav-item active" data-page="Predict"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><path d="M4 20V11h4v9M10 20V4h4v16M16 20v-7h4v7"/></svg>Predict</button>
+      <button class="nav-item" data-page="Dashboard"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M3 11 12 3l9 8h-3v9h-5v-6h-3v6H6v-9z"/></svg>Dashboard</button>
+      <button class="nav-item" data-page="Patient History"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.3"><path d="M3 11a9 9 0 1 1 2 6M3 4v7h7M12 7v5l3 2"/></svg>Patient History</button>
+      <button class="nav-item" data-page="Analytics"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.3"><path d="M3 3v18h18M6 15l5-5 4 3 6-8"/></svg>Analytics</button>
+      <button class="nav-item" data-page="Dataset Info"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.3"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>Dataset Info</button>
+      <button class="nav-item" data-page="About"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg>About</button>
+    </nav>
+    <div class="side-art">
+      <svg viewBox="0 0 220 190" fill="none" aria-hidden="true"><path d="M0 127h27l8-28 12 55 16-79 12 52h24" stroke="#3a8edc" stroke-width="2.5" stroke-linecap="round"/><path d="M105 80c-13-19-7-38 8-45 14-7 26 2 29 13 3-11 16-20 29-11 15 10 17 30 1 45l-30 28z" stroke="#3993e6" stroke-width="3"/><path d="M135 108v19c0 9 9 13 16 8l12-11M151 135l-7 12M164 124l13 8M184 156l8 17M182 156l-13 17" stroke="#3993e6" stroke-width="3" stroke-linecap="round"/><circle cx="192" cy="178" r="6" stroke="#3993e6" stroke-width="3"/></svg>
+      <div class="side-caption">Smarter insights for better patient outcomes.</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="hero">
+      <img class="hospital-art" alt="" src="https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?auto=format&fit=crop&w=800&q=80">
+      <h1 id="page-title">Hospital Readmission Predictor</h1>
+      <p id="page-subtitle">Enter patient details to predict the risk of hospital readmission within 30 days.</p>
+    </header>
+
+    <section class="form-card" id="predict-panel">
+      <div class="card-head">
+        <div class="head-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M4 20v-7h4v7M10 20V4h4v16M16 20v-9h4v9"/></svg></div>
+        <div><h2>Patient Information</h2><p>Please fill in all details below.</p></div>
+      </div>
+      <form class="form-body" id="patient-form">
+        <div class="fields">
+          <div class="field-column">
+            <div class="field"><div class="field-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 5V3h8v2M8 11h8M8 15h5"/></svg></div><div><label for="patient-id">Patient ID <span class="required">*</span></label><input id="patient-id" name="patientId" placeholder="e.g., P1001" required></div></div>
+            <div class="field"><div class="field-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 14h2M14 14h2M8 17h2"/></svg></div><div><label for="age">Age (years) <span class="required">*</span></label><input id="age" name="age" type="number" min="0" max="120" placeholder="e.g., 65" required></div></div>
+            <div class="field"><div class="field-icon"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="5"/><circle cx="16" cy="8" r="5"/><path d="M2 21v-2a6 6 0 0 1 12 0v2M13 15a6 6 0 0 1 9 5v1"/></svg></div><div><label for="gender">Gender <span class="required">*</span></label><select id="gender" name="gender" required><option value="">Select Gender</option><option>Female</option><option>Male</option><option>Other</option></select></div></div>
+            <div class="field"><div class="field-icon"><svg viewBox="0 0 24 24"><path d="M3 21V7l9-4 9 4v14M8 21v-6h8v6M7 10h2M15 10h2M12 3v5"/></svg></div><div><label for="admission">Admission Type <span class="required">*</span></label><select id="admission" name="admission" required><option value="">Select Admission Type</option><option>Emergency</option><option>Urgent</option><option>Elective</option></select></div></div>
+            <div class="field"><div class="field-icon"><svg viewBox="0 0 24 24"><path d="M12 21s8-7 8-12a8 8 0 0 0-16 0c0 5 8 12 8 12Z"/><circle cx="12" cy="9" r="2.5"/></svg></div><div><label for="diagnosis">Diagnosis <span class="required">*</span></label><select id="diagnosis" name="diagnosis" required><option value="">Select Diagnosis</option><option>Diabetes</option><option>Heart Disease</option><option>Respiratory Disease</option><option>Kidney Disease</option><option>Infection</option><option>Other</option></select></div></div>
+            <div class="field"><div class="field-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></svg></div><div><label for="days">Time in Hospital (days) <span class="required">*</span></label><input id="days" name="days" type="number" min="1" placeholder="e.g., 5" required></div></div>
+          </div>
+          <div class="field-column">
+            <div class="field"><div class="field-icon"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 1 2 6M3 5v7h7M12 7v5l3 2"/></svg></div><div><label for="admissions">Previous Admissions <span class="required">*</span></label><input id="admissions" name="admissions" type="number" min="0" placeholder="e.g., 2" required></div></div>
+            <div class="field"><div class="field-icon"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-6 10a2 2 0 0 0 2 3h12a2 2 0 0 0 2-3L14 9V3M7 16h10"/></svg></div><div><label for="labs">Lab Procedures <span class="required">*</span></label><input id="labs" name="labs" type="number" min="0" placeholder="e.g., 45" required></div></div>
+            <div class="field"><div class="field-icon"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="8" rx="4" transform="rotate(-40 12 12)"/><path d="m8 15 8-6"/></svg></div><div><label for="medications">Number of Medications <span class="required">*</span></label><input id="medications" name="medications" type="number" min="0" placeholder="e.g., 10" required></div></div>
+            <div class="field"><div class="field-icon"><svg viewBox="0 0 24 24"><path d="M12 21s8-8 8-13a8 8 0 0 0-16 0c0 5 8 13 8 13Z"/><path d="M12 5v9M8.5 10.5h7"/></svg></div><div><label for="diabetes">Diabetes <span class="required">*</span></label><select id="diabetes" name="diabetes" required><option value="">Select</option><option>Yes</option><option>No</option></select></div></div>
+            <div class="field"><div class="field-icon"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="8" rx="4" transform="rotate(-40 12 12)"/><path d="m8 15 8-6"/></svg></div><div><label for="med-change">Medication Change <span class="required">*</span></label><select id="med-change" name="medChange" required><option value="">Select</option><option>Yes</option><option>No</option></select></div></div>
+            <div class="field"><div class="field-icon"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8M5 10v11h14V10M9 21v-7h6v7"/></svg></div><div><label for="discharge">Discharge Disposition <span class="required">*</span></label><select id="discharge" name="discharge" required><option value="">Select Discharge Disposition</option><option>Home</option><option>Home with Home Health</option><option>Skilled Nursing Facility</option><option>Rehabilitation Facility</option><option>Other</option></select></div></div>
+          </div>
+        </div>
+        <button class="predict" type="submit"><svg viewBox="0 0 24 24"><path d="M9 3a3 3 0 0 0-3 3v1a3 3 0 0 0-2 3v1a3 3 0 0 0 2 3v1a3 3 0 0 0 3 3M15 3a3 3 0 0 1 3 3v1a3 3 0 0 1 2 3v1a3 3 0 0 1-2 3v1a3 3 0 0 1-3 3M9 3v18M15 3v18M9 8h6M9 16h6"/></svg>Predict Readmission <span aria-hidden="true">→</span></button>
+        <div class="result" id="result" role="status" aria-live="polite"></div>
+        <p class="notice">Demo interface only — connect a trained model and backend to generate clinically meaningful predictions.</p>
+      </form>
+    </section>
+  </main>
+</div>
+<script>
+  const form = document.getElementById('patient-form');
+  const result = document.getElementById('result');
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+    // This is a UI demonstration, not a medical prediction.
+    const patientId = document.getElementById('patient-id').value.trim();
+    result.className = 'result show';
+    result.innerHTML = '<strong>Demo submission received for ' + escapeHTML(patientId) + '.</strong><small>No real risk score was calculated. Connect this form to your trained machine-learning model/API to return a valid prediction.</small>';
+    result.scrollIntoView({behavior:'smooth', block:'nearest'});
+  });
+  function escapeHTML(value) {
+    return value.replace(/[&<>"']/g, function(char) {
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char];
+    });
+  }
+  document.querySelectorAll('.nav-item').forEach(function(button) {
+    button.addEventListener('click', function() {
+      document.querySelectorAll('.nav-item').forEach(function(item){item.classList.remove('active')});
+      button.classList.add('active');
+      const page = button.dataset.page;
+      if (page === 'Predict') {
+        document.getElementById('page-title').textContent = 'Hospital Readmission Predictor';
+        document.getElementById('page-subtitle').textContent = 'Enter patient details to predict the risk of hospital readmission within 30 days.';
+      } else {
+        document.getElementById('page-title').textContent = page;
+        document.getElementById('page-subtitle').textContent = 'This section is a visual placeholder. Add the ' + page.toLowerCase() + ' functionality to your application.';
+      }
+    });
+  });
+</script>
+</body>
+</html>
