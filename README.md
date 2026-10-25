@@ -10,11 +10,9 @@ Patient Data → Data Preprocessing → Machine Learning Model → Readmission R
 
 | Component | Choice |
 |---|---|
-| Dataset | Team-created synthetic CSV |
+| Dataset | data in CSV |
 | Data preparation | Pandas |
 | Main ML model | Logistic Regression |
-| Comparison model | Random Forest |
-| Evaluation | Precision, recall, F1-score, ROC-AUC and confusion matrix |
 | Backend | FastAPI |
 | Database | SQLite |
 | Frontend | Streamlit |
@@ -34,7 +32,7 @@ Patient Data → Data Preprocessing → Machine Learning Model → Readmission R
 
 ```
 hospital-readmission-predictor/
-├── ml_dataset.csv          # Patient dataset (1,000 rows)
+├── ml_dataset.csv          # Patient dataset
 ├── hospital_graphs.py      # Data exploration graphs
 ├── train_model.py          # ML training, evaluation and model saving
 ├── models/
@@ -83,10 +81,9 @@ This module trains a model that predicts whether a patient will be readmitted wi
 
 ### Results
 
-| Model | Test accuracy | Test recall (0.5) | Test AUC | 5-fold CV AUC |
+| Model | Test accuracy | Test recall (0.5) | Test AUC |
 |---|---|---|---|---|
 | Logistic Regression | 0.605 | 0.560 | 0.646 | **0.714** |
-| Random Forest | 0.610 | 0.500 | 0.639 | 0.684 |
 
 **Final model: Logistic Regression with threshold 0.36**
 - Accuracy 0.58, precision 0.50, recall 0.82, F1 0.62 on the test set
@@ -100,7 +97,7 @@ This module trains a model that predicts whether a patient will be readmitted wi
 - The threshold of 0.36 favors recall, because missing a high-risk patient is worse than a false alarm.
 
 ### Limitations
-- The dataset is synthetic and the signal is weak, so accuracy near 67% and AUC near 0.71 is the realistic ceiling.
+- The dataset and the signal is weak, so accuracy near 67% and AUC near 0.71 is the realistic ceiling.
 - The test split is only 200 rows, so single-split numbers are noisy. Use the cross-validation numbers as the main reference.
 - The model is for decision support only and does not replace clinical judgment.
 
@@ -128,8 +125,3 @@ high_risk = risk >= bundle["threshold"]
 print(f"Readmission risk: {risk:.0%} | High risk: {high_risk}")
 ```
 Use the same scikit-learn version as in `requirements.txt`, otherwise loading the model may fail.
-
----
-
-## Disclaimer
-This is an academic project built on synthetic data. It is a decision-support demo and must not be used for real clinical decisions.
